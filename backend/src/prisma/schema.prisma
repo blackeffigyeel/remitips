@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ExchangeRateHistory {
+  id                String   @id @default(uuid()) @db.Uuid
+  senderCountry     String   @map("sender_country") @db.VarChar(3)
+  recipientCountry  String   @map("recipient_country") @db.VarChar(3)
+  senderCurrency    String   @map("sender_currency") @db.VarChar(3)
+  recipientCurrency String   @map("recipient_currency") @db.VarChar(3)
+  amount            Float
+  
+  // Official exchange rate data
+  officialRate      Float @map("official_rate")
+  officialAmount    Float @map("official_amount")
+  
+  // Platform comparison data
+  platformData      Json @map("platform_data") // Stores array of platform results
+  winnerPlatform    String? @map("winner_platform") @db.VarChar(50)
+  bestReceiveAmount Float? @map("best_receive_amount")
+  bestExchangeRate  Float? @map("best_exchange_rate")
+  
+  // Historical analysis fields
+  averageRate       Float? @map("average_rate")
+  rateVariance      Float? @map("rate_variance")
+  platformCount     Int @map("platform_count") @default(0)
+  
+  // Metadata
+  createdAt         DateTime @map("created_at") @default(now())
+  updatedAt         DateTime @map("updated_at") @default(now()) @updatedAt
+  expiresAt         DateTime @map("expires_at") // TTL field - records expire after 60 days
+  
+  @@map("exchange_rate_history")
+  @@index([senderCountry, recipientCountry, createdAt])
+  @@index([createdAt])
+  @@index([expiresAt])
+}
+
+model PlatformPerformance {
+  id                String   @id @default(uuid()) @db.Uuid
+  platformName      String   @map("platform_name") @db.VarChar(50)
+  senderCountry     String   @map("sender_country") @db.VarChar(3)
+  recipientCountry  String   @map("recipient_country") @db.VarChar(3)
+  
+  // Performance metrics
+  totalRequests     Int @map("total_requests") @default(0)
+  successfulRequests Int @map("successful_requests") @default(0)
+  failedRequests    Int @map("failed_requests") @default(0)
+  averageResponseTime Float? @map("average_response_time") // in milliseconds
+  
+  // Rate competitiveness
+  timesWinner       Int @map("times_winner") @default(0)
+  averageRank       Float? @map("average_rank") // Average ranking position
+  
+  // Time period tracking
+  date              DateTime @default(now()) @db.Date
+  createdAt         DateTime @map("created_at") @default(now())
+  updatedAt         DateTime @map("updated_at") @default(now()) @updatedAt
+  
+  @@map("platform_performance")
+  @@unique([platformName, senderCountry, recipientCountry, date])
+  @@index([platformName, date])
+  @@index([senderCountry, recipientCountry, date])
+}
+
+model CurrencyPair {
+  id                String   @id @default(uuid()) @db.Uuid
+  fromCountry       String   @map("from_country") @db.VarChar(3)
+  toCountry         String   @map("to_country") @db.VarChar(3)
+  fromCurrency      String   @map("from_currency") @db.VarChar(3)
+  toCurrency        String   @map("to_currency") @db.VarChar(3)
+  
+  // Pair metadata
+  isActive          Boolean @map("is_active") @default(true)
+  supportedPlatforms String[] @map("supported_platforms") // Array of platform names that support this pair
+  popularityScore   Int @map("popularity_score") @default(0) // Based on request frequency
+  
+  // Rate tracking
+  lastOfficialRate  Float? @map("last_official_rate")
+  lastUpdated       DateTime? @map("last_updated")
+  
+  createdAt         DateTime @map("created_at") @default(now())
+  updatedAt         DateTime @map("updated_at") @default(now()) @updatedAt
+  
+  @@map("currency_pairs")
+  @@unique([fromCountry, toCountry])
+  @@index([fromCurrency, toCurrency])
+  @@index([popularityScore])
+}
+
+model ApiUsageLog {
+  id                String   @id @default(uuid()) @db.Uuid
+  endpoint          String   @db.VarChar(100)
+  method            String   @db.VarChar(10)
+  
+  // Request details
+  senderCountry     String? @map("sender_country") @db.VarChar(3)
+  recipientCountry  String? @map("recipient_country") @db.VarChar(3)
+  amount            Float?
+  fetchHistoricalData Boolean @map("fetch_historical_data") @default(false)
+  
+  // Response details
+  statusCode        Int @map("status_code")
+  responseTime      Int @map("response_time") // in milliseconds
+  platformsQueried  Int @map("platforms_queried") @default(0)
+  successfulPlatforms Int @map("successful_platforms") @default(0)
+  
+  // Client information
+  ipAddress         String? @map("ip_address") @db.VarChar(45)
+  userAgent         String? @map("user_agent") @db.Text
+  
+  // Timestamps
+  requestedAt       DateTime @map("requested_at") @default(now())
+  
+  @@map("api_usage_logs")
+  @@index([requestedAt])
+  @@index([endpoint, requestedAt])
+  @@index([senderCountry, recipientCountry, requestedAt])
+}
+
+model SystemHealth {
+  id                String   @id @default(uuid()) @db.Uuid
+  
+  // Platform availability
+  platformName      String   @map("platform_name") @db.VarChar(50)
+  isAvailable       Boolean @map("is_available") @default(true)
+  lastChecked       DateTime @map("last_checked") @default(now())
+  responseTime      Int? @map("response_time") // in milliseconds
+  errorMessage      String? @map("error_message") @db.Text
+  
+  // Health metrics
+  uptimePercentage  Float? @map("uptime_percentage") // Last 24 hours
+  averageResponseTime Float? @map("average_response_time") // Last 24 hours
+  
+  createdAt         DateTime @map("created_at") @default(now())
+  updatedAt         DateTime @map("updated_at") @default(now()) @updatedAt
+  
+  @@map("system_health")
+  @@unique([platformName])
+  @@index([isAvailable, lastChecked])
+}

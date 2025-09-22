@@ -1,0 +1,64 @@
+{
+  "name": "remitips-backend",
+  "author": "Edwardwills A.",
+  "license": "ISC",
+  "version": "1.0.0",
+  "description": "The backend infrastructure codebase for Remitip, a remittance exchange rate comparison platform.",
+  "main": "src/app.js",
+  "scripts": {
+    "dev": "nodemon src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "format": "prettier --write \"src/**/*.{ts,js}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js}\""
+  },
+  "prisma": {
+    "schema": "src/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@jest/globals": "^30.1.2",
+    "@prisma/client": "^6.16.2",
+    "axios": "^1.12.2",
+    "child_process": "^1.0.2",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.1",
+    "node-cron": "^4.2.1",
+    "supertest": "^7.1.4",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^24.5.2",
+    "@types/node-cron": "^3.0.11",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.1.3",
+    "jest-mock-extended": "^4.0.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
+    "prisma": "^6.16.2",
+    "ts-jest": "^29.4.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "keywords": [
+    "remittance",
+    "exchange-rate",
+    "comparison",
+    "fintech"
+  ]
+}
