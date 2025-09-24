@@ -8,7 +8,7 @@ Each platform integration follows a standardized pattern using the `BaseIntegrat
 
 ### Base Integration Structure
 
-\`\`\`typescript
+```typescript
 export abstract class BaseIntegration {
   protected client: AxiosInstance
   protected platform_name: string
@@ -20,7 +20,7 @@ export abstract class BaseIntegration {
   
   // Helper methods for error handling, currency mapping, etc.
 }
-\`\`\`
+```
 
 ## Existing Platform Integrations
 
@@ -30,10 +30,10 @@ export abstract class BaseIntegration {
 **Method**: GET
 **Features**: Real-time rates, historical data
 
-\`\`\`typescript
+```typescript
 // Example API call
 GET /rates/history+live?source=USD&target=NGN&length=1&resolution=hourly&unit=day
-\`\`\`
+```
 
 **Response Processing**:
 - Extracts exchange rate from time-series data
@@ -46,10 +46,10 @@ GET /rates/history+live?source=USD&target=NGN&length=1&resolution=hourly&unit=da
 **Method**: GET
 **Features**: Promotional rates, multiple delivery methods
 
-\`\`\`typescript
+```typescript
 // Example API call
 GET /v3/calculator/estimate?conduit=USA:USD-NGA:NGN&anchor=SEND&amount=100&purpose=OTHER
-\`\`\`
+```
 
 **Response Processing**:
 - Parses conduit-based request format
@@ -62,10 +62,10 @@ GET /v3/calculator/estimate?conduit=USA:USD-NGA:NGN&anchor=SEND&amount=100&purpo
 **Method**: GET
 **Features**: Multiple currency support, promotional offers
 
-\`\`\`typescript
+```typescript
 // Example API call
 GET /api/send-money/fee-quote/v2?sender_countryCode=USA&sender_currencyCode=USD&receiverCountryCode=NGA&sendAmount=100.00
-\`\`\`
+```
 
 **Response Processing**:
 - Handles multiple currency quotes in single response
@@ -78,14 +78,14 @@ GET /api/send-money/fee-quote/v2?sender_countryCode=USA&sender_currencyCode=USD&
 **Method**: POST (GraphQL)
 **Features**: GraphQL API, multiple payout methods
 
-\`\`\`typescript
+```typescript
 // GraphQL mutation
 mutation createCalculation($amount: BigDecimal!, $type: CalculationType!, ...) {
   createCalculation(calculationInput: {...}) {
     calculation { ... }
   }
 }
-\`\`\`
+```
 
 **Response Processing**:
 - Handles GraphQL response structure
@@ -98,10 +98,10 @@ mutation createCalculation($amount: BigDecimal!, $type: CalculationType!, ...) {
 **Method**: GET
 **Features**: Business-focused rates, FX margins
 
-\`\`\`typescript
+```typescript
 // Example API call
 GET /api/fx/fxRate/indicativeQuote?sellAmount=100&sellCcy=USD&buyCcy=NGN&feePercent=1
-\`\`\`
+```
 
 **Response Processing**:
 - Calculates fees from rate margins
@@ -114,10 +114,10 @@ GET /api/fx/fxRate/indicativeQuote?sellAmount=100&sellCcy=USD&buyCcy=NGN&feePerc
 **Method**: GET
 **Features**: Multiple plan tiers, weekend rates
 
-\`\`\`typescript
+```typescript
 // Example API call
 GET /api/remittance/routes?amount=10000&isRecipientAmount=false&recipient_country=NG&sender_country=US
-\`\`\`
+```
 
 **Response Processing**:
 - Handles plan-based pricing (Standard, Premium, Metal)
@@ -130,10 +130,10 @@ GET /api/remittance/routes?amount=10000&isRecipientAmount=false&recipient_countr
 **Method**: GET
 **Features**: Mid-market rates, historical data
 
-\`\`\`typescript
+```typescript
 // Example API call
 GET /api/protected/midmarket-converter?Amount=100&From=USD&To=NGN
-\`\`\`
+```
 
 **Response Processing**:
 - Uses mid-market rates as baseline
@@ -146,10 +146,10 @@ GET /api/protected/midmarket-converter?Amount=100&From=USD&To=NGN
 **Method**: GET
 **Features**: Location-based pricing, cash pickup
 
-\`\`\`typescript
+```typescript
 // Example API call
 GET /api/locations/send-money/estimate?from_country=US&to_country=NG&sendAmount=100&from_currency=USD&to_currency=NGN
-\`\`\`
+```
 
 **Response Processing**:
 - Handles location-based fee structures
@@ -162,10 +162,10 @@ GET /api/locations/send-money/estimate?from_country=US&to_country=NG&sendAmount=
 **Method**: GET
 **Features**: PayPal integration, instant transfers
 
-\`\`\`typescript
+```typescript
 // Example API call
 GET /api/send-money/estimate?amount=100&from_country=US&to_country=NG&from_currency=USD&to_currency=NGN
-\`\`\`
+```
 
 **Response Processing**:
 - Integrates with PayPal fee structure
@@ -178,7 +178,7 @@ GET /api/send-money/estimate?amount=100&from_country=US&to_country=NG&from_curre
 
 Create a new file in `src/integrations/` following the naming convention:
 
-\`\`\`typescript
+```typescript
 // src/integrations/newplatform.ts
 import { BaseIntegration } from './base'
 import { ExchangeRateRequest, ExchangeRateResult } from '../types/exchangeRate'
@@ -229,13 +229,13 @@ export class NewPlatformIntegration extends BaseIntegration {
     }
   }
 }
-\`\`\`
+```
 
 ### Step 2: Register Integration
 
 Add the new integration to the platform registry:
 
-\`\`\`typescript
+```typescript
 // src/integrations/index.ts
 import { NewPlatformIntegration } from './newplatform'
 
@@ -243,13 +243,13 @@ export const platformIntegrations = {
   // ... existing integrations
   'NewPlatform': new NewPlatformIntegration(),
 }
-\`\`\`
+```
 
 ### Step 3: Add Platform Configuration
 
 Update the platform configuration:
 
-\`\`\`typescript
+```typescript
 // src/config/platforms.ts
 export const SUPPORTED_PLATFORMS = [
   // ... existing platforms
@@ -262,13 +262,13 @@ export const SUPPORTED_PLATFORMS = [
     minAmount: 1
   }
 ]
-\`\`\`
+```
 
 ### Step 4: Add Tests
 
 Create comprehensive tests for the new integration:
 
-\`\`\`typescript
+```typescript
 // tests/unit/integrations/newplatform.test.ts
 import { NewPlatformIntegration } from '../../../src/integrations/newplatform'
 
@@ -300,7 +300,7 @@ describe('NewPlatformIntegration', () => {
     })
   })
 })
-\`\`\`
+```
 
 ## Integration Best Practices
 
@@ -308,7 +308,7 @@ describe('NewPlatformIntegration', () => {
 
 Always implement comprehensive error handling:
 
-\`\`\`typescript
+```typescript
 try {
   const response = await this.client.get('/endpoint')
   return this.processResponse(response.data)
@@ -322,13 +322,13 @@ try {
   }
   return null
 }
-\`\`\`
+```
 
 ### 2. Response Time Tracking
 
 Track and log response times for monitoring:
 
-\`\`\`typescript
+```typescript
 const startTime = Date.now()
 const response = await this.client.get('/endpoint')
 const response_time = Date.now() - startTime
@@ -338,13 +338,13 @@ await this.logPerformance({
   response_time,
   success: true
 })
-\`\`\`
+```
 
 ### 3. Currency Mapping
 
 Handle currency code variations:
 
-\`\`\`typescript
+```typescript
 private mapCurrencyCode(code: string): string {
   const currencyMap = {
     'USD': 'US_DOLLAR',
@@ -353,13 +353,13 @@ private mapCurrencyCode(code: string): string {
   }
   return currencyMap[code] || code
 }
-\`\`\`
+```
 
 ### 4. Rate Caching
 
 Implement intelligent caching for frequently requested rates:
 
-\`\`\`typescript
+```typescript
 private async getCachedRate(key: string): Promise<ExchangeRateResult | null> {
   const cached = await this.cache.get(key)
   if (cached && Date.now() - cached.timestamp < 300000) { // 5 minutes
@@ -367,13 +367,13 @@ private async getCachedRate(key: string): Promise<ExchangeRateResult | null> {
   }
   return null
 }
-\`\`\`
+```
 
 ### 5. Fallback Mechanisms
 
 Implement fallbacks for when primary endpoints fail:
 
-\`\`\`typescript
+```typescript
 async getExchangeRate(request: ExchangeRateRequest): Promise<ExchangeRateResult | null> {
   // Try primary endpoint
   let result = await this.tryPrimaryEndpoint(request)
@@ -385,7 +385,7 @@ async getExchangeRate(request: ExchangeRateRequest): Promise<ExchangeRateResult 
   
   return result
 }
-\`\`\`
+```
 
 ## Testing Integrations
 
@@ -393,25 +393,25 @@ async getExchangeRate(request: ExchangeRateRequest): Promise<ExchangeRateResult 
 
 Test each integration in isolation with mocked API responses:
 
-\`\`\`bash
+```bash
 npm test -- --testPathPattern=integrations/newplatform
-\`\`\`
+```
 
 ### Integration Testing
 
 Test with real API calls (use test credentials):
 
-\`\`\`bash
+```bash
 npm run test:integration -- --grep="NewPlatform"
-\`\`\`
+```
 
 ### Load Testing
 
 Test platform performance under load:
 
-\`\`\`bash
+```bash
 npm run test:load -- --platform=NewPlatform
-\`\`\`
+```
 
 ## Monitoring and Maintenance
 
@@ -427,7 +427,7 @@ Each integration automatically logs:
 
 Platforms are automatically health-checked every hour:
 
-\`\`\`typescript
+```typescript
 // Automatic health check
 const healthStatus = await integration.healthCheck()
 if (!healthStatus.healthy) {
@@ -437,19 +437,19 @@ if (!healthStatus.healthy) {
     details: healthStatus.error
   })
 }
-\`\`\`
+```
 
 ### Rate Limit Management
 
 Implement rate limit handling:
 
-\`\`\`typescript
+```typescript
 private async handleRateLimit(): Promise<void> {
   const backoffTime = this.calculateBackoff()
   await this.sleep(backoffTime)
   this.rateLimitCount++
 }
-\`\`\`
+```
 
 ## Troubleshooting
 
@@ -479,16 +479,16 @@ private async handleRateLimit(): Promise<void> {
 
 Enable debug logging:
 
-\`\`\`bash
+```bash
 LOG_LEVEL=debug npm start
-\`\`\`
+```
 
 Test specific platform:
 
-\`\`\`bash
+```bash
 curl "http://localhost:9101/api/v1/exchange-rates/compare?sender_country=US&recipient_country=MX&amount=100" \
   -H "X-Debug-Platform: NewPlatform"
-\`\`\`
+```
 
 ## API Documentation
 

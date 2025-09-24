@@ -1,9 +1,9 @@
 # Remitips API Documentation
 
 ## Base URL
-\`\`\`
+```
 https://localhost:9101/api/v1
-\`\`\`
+```
 
 ## Authentication
 Currently, the API is open and does not require authentication. Rate limiting is applied per IP address.
@@ -15,7 +15,7 @@ Currently, the API is open and does not require authentication. Rate limiting is
 ## Response Format
 All API responses follow this structure:
 
-\`\`\`json
+```json
 {
   "success": true,
   "data": { ... },
@@ -26,10 +26,10 @@ All API responses follow this structure:
     "responseTime": "250ms"
   }
 }
-\`\`\`
+```
 
 Error responses:
-\`\`\`json
+```json
 {
   "success": false,
   "error": {
@@ -38,7 +38,7 @@ Error responses:
   },
   "timestamp": "2024-01-01T00:00:00.000Z"
 }
-\`\`\`
+```
 
 ## Endpoints
 
@@ -47,9 +47,9 @@ Error responses:
 #### Compare Exchange Rates
 Compare exchange rates across all supported platforms.
 
-\`\`\`http
+```http
 GET /exchange-rates/compare
-\`\`\`
+```
 
 **Parameters:**
 | Parameter | Type | Required | Description |
@@ -60,12 +60,12 @@ GET /exchange-rates/compare
 | `fetchHistoricalData` | boolean | No | Include historical analysis (default: false) |
 
 **Example Request:**
-\`\`\`bash
+```bash
 curl "https://localhost:9101/api/v1/exchange-rates/compare?senderCountry=US&recipientCountry=NG&amount=100&fetchHistoricalData=true"
-\`\`\`
+```
 
 **Example Response:**
-\`\`\`json
+```json
 {
   "success": true,
   "data": {
@@ -137,17 +137,17 @@ curl "https://localhost:9101/api/v1/exchange-rates/compare?senderCountry=US&reci
     }
   }
 }
-\`\`\`
+```
 
 #### Platform Health Check
 Check the availability and performance of all platforms.
 
-\`\`\`http
+```http
 GET /exchange-rates/health
-\`\`\`
+```
 
 **Example Response:**
-\`\`\`json
+```json
 {
   "success": true,
   "data": {
@@ -166,14 +166,14 @@ GET /exchange-rates/health
     "timestamp": "2024-01-01T00:00:00.000Z"
   }
 }
-\`\`\`
+```
 
 #### Available Platforms
 Get list of platforms that support a specific corridor.
 
-\`\`\`http
+```http
 GET /exchange-rates/platforms
-\`\`\`
+```
 
 **Parameters:**
 | Parameter | Type | Required | Description |
@@ -182,7 +182,7 @@ GET /exchange-rates/platforms
 | `recipientCountry` | string | Yes | 2-3 letter country code |
 
 **Example Response:**
-\`\`\`json
+```json
 {
   "success": true,
   "data": {
@@ -194,16 +194,16 @@ GET /exchange-rates/platforms
     "count": 6
   }
 }
-\`\`\`
+```
 
 ### Analytics
 
 #### Platform Analytics
 Get detailed performance analytics for platforms in a specific corridor.
 
-\`\`\`http
+```http
 GET /analytics/platforms
-\`\`\`
+```
 
 **Parameters:**
 | Parameter | Type | Required | Description |
@@ -213,7 +213,7 @@ GET /analytics/platforms
 | `days` | number | No | Analysis period in days (1-365, default: 30) |
 
 **Example Response:**
-\`\`\`json
+```json
 {
   "success": true,
   "data": {
@@ -241,14 +241,14 @@ GET /analytics/platforms
     }
   }
 }
-\`\`\`
+```
 
 #### Corridor Analytics
 Get analytics for all corridors showing popularity and performance metrics.
 
-\`\`\`http
+```http
 GET /analytics/corridors
-\`\`\`
+```
 
 **Parameters:**
 | Parameter | Type | Required | Description |
@@ -256,7 +256,7 @@ GET /analytics/corridors
 | `days` | number | No | Analysis period in days (default: 30) |
 
 **Example Response:**
-\`\`\`json
+```json
 {
   "success": true,
   "data": {
@@ -285,14 +285,14 @@ GET /analytics/corridors
     }
   }
 }
-\`\`\`
+```
 
 #### Trend Analysis
 Get trend analysis showing how platform performance changes over time.
 
-\`\`\`http
+```http
 GET /analytics/trends
-\`\`\`
+```
 
 **Parameters:**
 | Parameter | Type | Required | Description |
@@ -302,7 +302,7 @@ GET /analytics/trends
 | `periods` | string | No | Comma-separated periods (e.g., "7d,14d,30d") |
 
 **Example Response:**
-\`\`\`json
+```json
 {
   "success": true,
   "data": {
@@ -327,14 +327,14 @@ GET /analytics/trends
     }
   }
 }
-\`\`\`
+```
 
 #### Daily Summary
 Get daily activity summary for a specific date.
 
-\`\`\`http
+```http
 GET /analytics/daily-summary
-\`\`\`
+```
 
 **Parameters:**
 | Parameter | Type | Required | Description |
@@ -342,7 +342,7 @@ GET /analytics/daily-summary
 | `date` | string | No | Date in YYYY-MM-DD format (default: today) |
 
 **Example Response:**
-\`\`\`json
+```json
 {
   "success": true,
   "data": {
@@ -362,19 +362,19 @@ GET /analytics/daily-summary
     "summary": "Processed 45 comparisons across 12 corridors"
   }
 }
-\`\`\`
+```
 
 ### System
 
 #### Scheduler Status
 Get status of scheduled background jobs.
 
-\`\`\`http
+```http
 GET /analytics/scheduler/status
-\`\`\`
+```
 
 **Example Response:**
-\`\`\`json
+```json
 {
   "success": true,
   "data": {
@@ -388,14 +388,14 @@ GET /analytics/scheduler/status
     ]
   }
 }
-\`\`\`
+```
 
 #### Trigger Manual Job
 Manually trigger a scheduled job (useful for testing and maintenance).
 
-\`\`\`http
+```http
 POST /analytics/scheduler/trigger/{jobType}
-\`\`\`
+```
 
 **Path Parameters:**
 | Parameter | Description |
@@ -403,14 +403,14 @@ POST /analytics/scheduler/trigger/{jobType}
 | `jobType` | Job type: `cleanup`, `summary`, `popularity`, `health`, `weekly` |
 
 **Example Response:**
-\`\`\`json
+```json
 {
   "success": true,
   "data": {
     "message": "Daily cleanup job triggered successfully"
   }
 }
-\`\`\`
+```
 
 ## Error Codes
 
@@ -437,7 +437,7 @@ Supported country codes (ISO 3166-1):
 ## SDKs and Libraries
 
 ### JavaScript/Node.js
-\`\`\`javascript
+```javascript
 const axios = require('axios');
 
 const remitips = {
@@ -454,10 +454,10 @@ const remitips = {
 // Usage
 const rates = await remitips.compareRates('US', 'NG', 100, true);
 console.log(rates.data.winner);
-\`\`\`
+```
 
 ### Python
-\`\`\`python
+```python
 import requests
 
 class RemitipsAPI:

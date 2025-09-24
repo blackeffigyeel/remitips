@@ -23,8 +23,8 @@ RUN chown -R app:app .
 # Switch back to app user
 USER app
 
-# Install production dependencies only
-RUN npm ci --only=production
+# Install ALL dependencies (including dev) for build
+RUN npm ci
 
 # Copy the rest of the source code
 COPY . .
@@ -32,10 +32,11 @@ COPY . .
 # Compile TypeScript into dist/
 RUN npm run build
 
+# Install only production dependencies for runtime
+RUN npm ci --only=production
+
 # Expose the port for the backend server
 EXPOSE 9101
 
 # Default command (production)
 CMD ["npm", "start"]
-
-# Optional: for development, override CMD in docker-compose with "npm run dev"
