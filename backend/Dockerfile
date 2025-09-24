@@ -23,11 +23,14 @@ RUN chown -R app:app .
 # Switch back to app user
 USER app
 
-# Install dependencies
+# Install production dependencies only
 RUN npm ci --only=production
 
 # Copy the rest of the source code
 COPY . .
+
+# Compile TypeScript into dist/
+RUN npm run build
 
 # Expose the port for the backend server
 EXPOSE 9101
