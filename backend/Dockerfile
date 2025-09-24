@@ -5,7 +5,9 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY prisma ./prisma/
+
+# Copy Prisma schema from src/prisma to prisma/ in container
+COPY src/prisma ./prisma/
 
 # Install all dependencies for build
 RUN npm ci
@@ -29,12 +31,14 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY prisma ./prisma/
+
+# Copy Prisma schema from src/prisma to prisma/ in container
+COPY src/prisma ./prisma/
 
 # Install only production dependencies
 RUN npm ci --only=production
 
-# Generate Prisma client for production (needs the schema)
+# Generate Prisma client for production
 RUN npx prisma generate
 
 # Copy built application from builder stage
