@@ -5,13 +5,15 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY prisma ./prisma/
+
+# Copy Prisma schema from src/prisma to prisma/ in container
+COPY src/prisma ./prisma/
 
 # Install all dependencies for build
 RUN npm ci
 
-# Generate Prisma client
-RUN npx prisma generate
+# Generate Prisma client with explicit schema path
+RUN npx prisma generate --schema=./prisma/schema.prisma
 
 # Copy source code
 COPY . .
@@ -29,20 +31,24 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY prisma ./prisma/
+
+# Copy Prisma schema from src/prisma to prisma/ in container
+COPY src/prisma ./prisma/
 
 # Install only production dependencies
 RUN npm ci --only=production
 
-# Generate Prisma client for production (needs the schema)
-RUN npx prisma generate
+# Generate Prisma client for production with explicit schema path
+RUN npx prisma generate --schema=./prisma/schema.prisma
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 # Copy any other necessary files
 COPY --from=builder /app/package.json ./package.json
 
-# Switch to app user
+# Create logs directory with proper permissions BEFORE switching to app user
+USER root
+RUN mkdir -p /app/logs && chown -R app:app /app/logs
 USER app
 
 # Expose the port for the backend server
