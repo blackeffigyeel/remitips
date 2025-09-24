@@ -12,8 +12,8 @@ COPY src/prisma ./prisma/
 # Install all dependencies for build
 RUN npm ci
 
-# Generate Prisma client
-RUN npx prisma generate
+# Generate Prisma client with explicit schema path
+RUN npx prisma generate --schema=./prisma/schema.prisma
 
 # Copy source code
 COPY . .
@@ -38,8 +38,8 @@ COPY src/prisma ./prisma/
 # Install only production dependencies
 RUN npm ci --only=production
 
-# Generate Prisma client for production
-RUN npx prisma generate
+# Generate Prisma client for production with explicit schema path
+RUN npx prisma generate --schema=./prisma/schema.prisma
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
