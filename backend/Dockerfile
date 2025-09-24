@@ -1,39 +1,49 @@
-# Use a lightweight Node.js image as base
+# Build stage
+FROM node:20-alpine3.18 AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install all dependencies for build
+RUN npm ci
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Production stage
 FROM node:20-alpine3.18
 
 # Create app user and group for security
 RUN addgroup app && adduser -S -G app app
 
-# Switch to app user
-USER app
-
-# Set working directory inside container
 WORKDIR /app
 
-# Copy package.json and package-lock.json first for caching
+# Copy package files
 COPY package*.json ./
+COPY prisma ./prisma/
 
-# Switch to root temporarily to change permissions
-USER root
-# Change ownership of the working directory to the app user
-# chown -R <user>:<group> <directory>
-# chown command changes the user and/or group ownership of for given file.
-RUN chown -R app:app .
-
-# Switch back to app user
-USER app
-
-# Install ALL dependencies (including dev) for build
-RUN npm ci
-
-# Copy the rest of the source code
-COPY . .
-
-# Compile TypeScript into dist/
-RUN npm run build
-
-# Install only production dependencies for runtime
+# Install only production dependencies
 RUN npm ci --only=production
+
+# Generate Prisma client for production (needs the schema)
+RUN npx prisma generate
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist ./dist
+# Copy any other necessary files
+COPY --from=builder /app/package.json ./package.json
+
+# Switch to app user
+USER app
 
 # Expose the port for the backend server
 EXPOSE 9101
