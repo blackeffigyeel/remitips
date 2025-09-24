@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  frontend:
+    # build the container from the Dockerfile in the current directory
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    
+    # map port so that the app can be accessed from the browser
+    ports:
+      - 3000:3000
+
+    # run full npm install for development and start Next.js in dev mode
+    command: sh -c "npm install && npm run dev"
+
+    # use docker compose to watch for changes and rebuild the container
+    develop:
+      watch:
+        - path: ./package.json
+          action: rebuild
+        - path: ./next.config.js
+          action: rebuild
+        - path: ./package-lock.json
+          action: rebuild
+        - path: .
+          target: /app
+          action: sync
+
+    # define the environment variables for the frontend
+    # values are loaded from .env.local at runtime
+    env_file:
+      - .env.local
+
+# no local database service is required
+# the app uses a cloud-hosted database

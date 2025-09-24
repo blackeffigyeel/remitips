@@ -102,7 +102,7 @@ export class SchedulerService {
 
       const summary = await this.analyticsService.generateDailySummary(yesterday);
 
-      // Log the summary (in production, you might send this to a monitoring service)
+      // Log the summary (in production, this might be sent to a monitoring service)
       logger.info("Daily summary generated:", summary);
 
       // Store summary in database for historical tracking
@@ -133,7 +133,7 @@ export class SchedulerService {
 
       if (!isHealthy) {
         logger.error("Database health check failed");
-        // In production, you might send alerts here
+        // In production, alerts might be sent here
       } else {
         logger.debug("Database health check passed", stats);
       }
@@ -186,7 +186,7 @@ export class SchedulerService {
   // Helper methods to store reports
   private async storeDailySummary(summary: any) {
     try {
-      // In a production system, you might store this in a separate reports table
+      // In a production system, this might be stored in a separate reports table
       // For now, we'll just log it
       logger.info("Daily summary stored", {
         date: summary.date,
@@ -199,7 +199,7 @@ export class SchedulerService {
 
   private async storeWeeklyReport(reports: any[]) {
     try {
-      // In a production system, you might store this in a separate reports table
+      // In a production system, this might be stored in a separate reports table
       // For now, we'll just log it
       logger.info("Weekly report stored", {
         corridorsAnalyzed: reports.length,

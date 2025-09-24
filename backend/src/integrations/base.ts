@@ -34,7 +34,7 @@ export abstract class BaseIntegration {
       baseURL: this.baseURL,
       timeout: this.timeout,
       headers: {
-        "User-Agent": "RemiTip/1.0.0 (Exchange Rate Comparison Service)",
+        "User-Agent": "Remitips/1.0.0 (Exchange Rate Comparison Service)",
         Accept: "application/json",
         "Content-Type": "application/json",
       },
@@ -126,7 +126,35 @@ export abstract class BaseIntegration {
 
   // Helper method to handle API errors gracefully
   protected handleError(error: any, request: ExchangeRateRequest): ExchangeRateResult {
-    const errorMessage = error.response?.data?.message || error.message || "Unknown error";
+    let errorMessage = "Unknown error";
+
+    if (error.response) {
+      // HTTP error responses
+      const status = error.response.status;
+
+      switch (status) {
+        case 403:
+          errorMessage = "API access forbidden - check credentials or permissions";
+          break;
+        case 404:
+          errorMessage = "API endpoint not found";
+          break;
+        case 500:
+          errorMessage = "Remote server error";
+          break;
+        case 429:
+          errorMessage = "Rate limit exceeded";
+          break;
+        default:
+          errorMessage = error.response.data?.message || `HTTP ${status} error`;
+      }
+    } else if (error.request) {
+      // Network errors
+      errorMessage = "Network error - unable to reach API";
+    } else {
+      // Other errors
+      errorMessage = error.message || "Unknown error occurred";
+    }
 
     logger.warn(`${this.platformName} integration failed:`, {
       error: errorMessage,

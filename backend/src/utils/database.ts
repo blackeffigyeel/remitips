@@ -41,20 +41,151 @@ export class DatabaseUtils {
     rank?: number;
   }) {
     try {
-      // Use raw SQL to call the stored procedure
-      await prisma.$executeRaw`
-        SELECT update_platform_performance(
-          ${data.platformName}::VARCHAR(50),
-          ${data.senderCountry}::VARCHAR(3),
-          ${data.recipientCountry}::VARCHAR(3),
-          ${data.success}::BOOLEAN,
-          ${data.responseTime}::INTEGER,
-          ${data.isWinner || false}::BOOLEAN,
-          ${data.rank || null}::INTEGER
-        )
-      `;
+      // Get current date for the record
+      const currentDate = new Date().toISOString().split('T')[0];
+
+      // Use upsert to handle both new and existing records
+      await prisma.platformPerformance.upsert({
+        where: {
+          platformName_senderCountry_recipientCountry_date: {
+            platformName: data.platformName,
+            senderCountry: data.senderCountry,
+            recipientCountry: data.recipientCountry,
+            date: new Date(currentDate),
+          },
+        },
+        update: {
+          totalRequests: { increment: 1 },
+          successfulRequests: { increment: data.success ? 1 : 0 },
+          failedRequests: { increment: data.success ? 0 : 1 },
+          averageResponseTime: {
+            // Calculate new average response time
+            set: await this.calculateAverageResponseTime(
+              data.platformName,
+              data.senderCountry,
+              data.recipientCountry,
+              data.responseTime
+            ),
+          },
+          timesWinner: { increment: data.isWinner ? 1 : 0 },
+          averageRank: await this.calculateAverageRank(
+            data.platformName,
+            data.senderCountry,
+            data.recipientCountry,
+            data.rank
+          ),
+          updatedAt: new Date(),
+        },
+        create: {
+          platformName: data.platformName,
+          senderCountry: data.senderCountry,
+          recipientCountry: data.recipientCountry,
+          totalRequests: 1,
+          successfulRequests: data.success ? 1 : 0,
+          failedRequests: data.success ? 0 : 1,
+          averageResponseTime: data.responseTime,
+          timesWinner: data.isWinner ? 1 : 0,
+          averageRank: data.rank || null,
+          date: new Date(currentDate),
+        },
+      });
     } catch (error) {
       logger.error("Failed to update platform performance:", error);
+      // Fallback to simple update without breaking the flow
+      await this.fallbackPlatformUpdate(data);
+    }
+  }
+
+  // Helper method to calculate average response time
+  private static async calculateAverageResponseTime(
+    platformName: string,
+    senderCountry: string,
+    recipientCountry: string,
+    newResponseTime: number
+  ): Promise<number> {
+    try {
+      const existing = await prisma.platformPerformance.findUnique({
+        where: {
+          platformName_senderCountry_recipientCountry_date: {
+            platformName,
+            senderCountry,
+            recipientCountry,
+            date: new Date(new Date().toISOString().split('T')[0]),
+          },
+        },
+      });
+
+      if (!existing || !existing.averageResponseTime) {
+        return newResponseTime;
+      }
+
+      // Weighted average calculation
+      const totalRequests = existing.totalRequests;
+      return (existing.averageResponseTime * totalRequests + newResponseTime) / (totalRequests + 1);
+    } catch (error) {
+      return newResponseTime;
+    }
+  }
+
+  // Helper method to calculate average rank
+  private static async calculateAverageRank(
+    platformName: string,
+    senderCountry: string,
+    recipientCountry: string,
+    newRank?: number
+  ): Promise<number | null> {
+    if (!newRank) return null;
+
+    try {
+      const existing = await prisma.platformPerformance.findUnique({
+        where: {
+          platformName_senderCountry_recipientCountry_date: {
+            platformName,
+            senderCountry,
+            recipientCountry,
+            date: new Date(new Date().toISOString().split('T')[0]),
+          },
+        },
+      });
+
+      if (!existing || !existing.averageRank) {
+        return newRank;
+      }
+
+      // Weighted average calculation
+      const totalRequests = existing.totalRequests;
+      return (existing.averageRank * totalRequests + newRank) / (totalRequests + 1);
+    } catch (error) {
+      return newRank;
+    }
+  }
+
+  // Fallback method if the main update fails
+  private static async fallbackPlatformUpdate(data: {
+    platformName: string;
+    senderCountry: string;
+    recipientCountry: string;
+    success: boolean;
+    responseTime: number;
+  }) {
+    try {
+      // Simple insert without complex calculations
+      await prisma.platformPerformance.create({
+        data: {
+          platformName: data.platformName,
+          senderCountry: data.senderCountry,
+          recipientCountry: data.recipientCountry,
+          totalRequests: 1,
+          successfulRequests: data.success ? 1 : 0,
+          failedRequests: data.success ? 0 : 1,
+          averageResponseTime: data.responseTime,
+          timesWinner: 0,
+          averageRank: null,
+          date: new Date(new Date().toISOString().split('T')[0]),
+        },
+      });
+    } catch (error) {
+      logger.error("Fallback platform update also failed:", error);
     }
   }
 

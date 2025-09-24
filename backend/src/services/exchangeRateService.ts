@@ -276,7 +276,7 @@ export class ExchangeRateService {
 
     data.forEach((record) => {
       try {
-        const platforms = JSON.parse(record.platformData) as ExchangeRateResult[];
+        const platforms = record.platformData as ExchangeRateResult[];
         platforms.forEach((platform) => {
           if (!platformStats[platform.platform]) {
             platformStats[platform.platform] = { rates: [], winCount: 0, receiveAmounts: [] };
@@ -341,6 +341,13 @@ export class ExchangeRateService {
         const winner = response.winner;
         const metrics = response.metrics;
 
+        // Explicit destructure to ensure correct types
+        const {
+          averageExchangeRate,
+          spreadPercentage,
+          platformCount,
+        } = metrics;
+
         await prisma.exchangeRateHistory.create({
           data: {
             senderCountry: request.senderCountry,
@@ -354,9 +361,9 @@ export class ExchangeRateService {
             winnerPlatform: winner?.platform || null,
             bestReceiveAmount: winner?.receiveAmount || null,
             bestExchangeRate: winner?.exchangeRate || null,
-            averageRate: metrics.averageExchangeRate,
-            rateVariance: metrics.spreadPercentage,
-            platformCount: metrics.platformCount,
+            averageRate: averageExchangeRate,
+            rateVariance: spreadPercentage,
+            platformCount: platformCount,
             expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days later
           },
         });

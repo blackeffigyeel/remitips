@@ -22,8 +22,8 @@ export class WiseIntegration extends BaseIntegration {
       });
 
       // Parse Wise response (they return HTML, so we need to extract the rate)
-      // For production, you would need to parse the HTML or use their official API
-      // This is a simplified implementation based on the pattern shown
+      // For production, parsing the HTML or using their official API would be necessary
+      // This is a simplified implementation
 
       // Fallback to their rates API if available
       const ratesResponse = await this.client.get("/rates/history+live", {

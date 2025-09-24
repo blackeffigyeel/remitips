@@ -1,4 +1,4 @@
--- Create RemiTips database and setup initial configuration
+-- Create Remitips database and setup initial configuration
 -- This script should be run by a database administrator
 
 -- Create database (if not exists)

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  frontend:
+    # build the container from the Dockerfile in the current directory
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    # map port so that the app can be accessed from the browser
+    ports:
+      - 3000:3000
+    
+    # use docker compose to watch for changes and rebuild the container
+    develop:
+      watch:
+        - path: ./package.json
+          action: rebuild
+        - path: ./next.config.js
+          action: rebuild
+        - path: ./package-lock.json
+          action: rebuild
+        - path: .
+          target: /app
+          action: sync
+    
+    # define the environment variables for the frontend
+    # values are loaded from the .env file at runtime
+    env_file:
+      - .env.production
+
+# no local database service is required
+# the app uses a cloud-hosted database

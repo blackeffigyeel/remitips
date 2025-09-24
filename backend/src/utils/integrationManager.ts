@@ -14,38 +14,59 @@ import {
 } from "../integrations";
 import { DatabaseUtils } from "./database";
 import logger from "./logger";
+import { PLATFORM_CONFIG } from '../integrations/platforms.config';
 
 export class IntegrationManager {
   private integrations: BaseIntegration[];
 
   constructor() {
-    this.integrations = [
-      new WiseIntegration(),
-      new RemitlyIntegration(),
-      new MoneyGramIntegration(),
-      new WorldRemitIntegration(),
-      new AirwallexIntegration(),
-      new RevolutIntegration(),
-      new XEIntegration(),
-      new RiaIntegration(),
-      new XoomIntegration(),
+    this.integrations = this.initializeEnabledPlatforms();
+  }
+
+  // Initialize only enabled platforms
+  private initializeEnabledPlatforms(): BaseIntegration[] {
+    const platforms = [
+      { name: 'Wise', enabled: PLATFORM_CONFIG.enabledPlatforms.Wise, class: WiseIntegration },
+      { name: 'Remitly', enabled: PLATFORM_CONFIG.enabledPlatforms.Remitly, class: RemitlyIntegration },
+      { name: 'MoneyGram', enabled: PLATFORM_CONFIG.enabledPlatforms.MoneyGram, class: MoneyGramIntegration },
+      { name: 'WorldRemit', enabled: PLATFORM_CONFIG.enabledPlatforms.WorldRemit, class: WorldRemitIntegration },
+      { name: 'Airwallex', enabled: PLATFORM_CONFIG.enabledPlatforms.Airwallex, class: AirwallexIntegration },
+      { name: 'Revolut', enabled: PLATFORM_CONFIG.enabledPlatforms.Revolut, class: RevolutIntegration },
+      { name: 'XE', enabled: PLATFORM_CONFIG.enabledPlatforms.XE, class: XEIntegration },
+      { name: 'Ria', enabled: PLATFORM_CONFIG.enabledPlatforms.Ria, class: RiaIntegration },
+      { name: 'Xoom', enabled: PLATFORM_CONFIG.enabledPlatforms.Xoom, class: XoomIntegration },
     ];
+
+    // Filter out disabled platforms and create instances
+    return platforms
+      .filter(platform => platform.enabled)
+      .map(platform => new platform.class())
+      .filter(Boolean) as BaseIntegration[];
   }
 
   // Get exchange rates from all platforms
   async getAllRates(request: ExchangeRateRequest): Promise<ExchangeRateResult[]> {
     const startTime = Date.now();
 
+    // Use getPlatformName method instead of accessing protected property directly
+    const enabledPlatformNames = this.integrations.map(integration => this.getPlatformName(integration));
+
     logger.info("Starting exchange rate comparison", {
       senderCountry: request.senderCountry,
       recipientCountry: request.recipientCountry,
       amount: request.amount,
       platformCount: this.integrations.length,
+      enabledPlatforms: enabledPlatformNames,
     });
 
-    // Execute all integrations in parallel
+    // Check for restricted platforms
+    const filteredIntegrations = this.integrations.filter(integration => 
+      !this.isPlatformRestricted(this.getPlatformName(integration), request)
+    );
+
+    // Execute all integrations in parallel - USE filteredIntegrations, not this.filteredIntegrations
     const results = await Promise.allSettled(
-      this.integrations.map(async (integration) => {
+      filteredIntegrations.map(async (integration: BaseIntegration) => {
         const platformStartTime = Date.now();
 
         try {
@@ -66,19 +87,28 @@ export class IntegrationManager {
           }
 
           return result;
-        } catch (error) {
+        } catch (error: any) {
           const responseTime = Date.now() - platformStartTime;
 
-          logger.error(`Integration ${integration.constructor.name} failed:`, error);
+          const platformName = this.getPlatformName(integration);
+          logger.error(`Integration ${platformName} failed:`, {
+            error: error.message,
+            platform: platformName,
+            corridor: `${request.senderCountry}-${request.recipientCountry}`
+          });
 
           // Log failed attempt
-          await DatabaseUtils.updatePlatformPerformance({
-            platformName: integration.constructor.name.replace("Integration", ""),
-            senderCountry: request.senderCountry,
-            recipientCountry: request.recipientCountry,
-            success: false,
-            responseTime: responseTime,
-          });
+          try {
+            await DatabaseUtils.updatePlatformPerformance({
+              platformName: platformName,
+              senderCountry: request.senderCountry,
+              recipientCountry: request.recipientCountry,
+              success: false,
+              responseTime: responseTime,
+            });
+          } catch (dbError) {
+            logger.error("Failed to log platform performance for failed request:", dbError);
+          }
 
           return null;
         }
@@ -94,7 +124,7 @@ export class IntegrationManager {
       .map((result) => result.value);
 
     // Rank platforms by receive amount (best to worst)
-    successfulResults.sort((a, b) => b.receiveAmount - a.receiveAmount);
+    successfulResults.sort((a: ExchangeRateResult, b: ExchangeRateResult) => b.receiveAmount - a.receiveAmount);
 
     // Update platform rankings
     await this.updatePlatformRankings(successfulResults, request);
@@ -105,11 +135,71 @@ export class IntegrationManager {
       totalTime: `${totalTime}ms`,
       successfulPlatforms: successfulResults.length,
       totalPlatforms: this.integrations.length,
+      enabledPlatformsCount: filteredIntegrations.length,
       bestPlatform: successfulResults[0]?.platform,
       bestReceiveAmount: successfulResults[0]?.receiveAmount,
     });
 
     return successfulResults;
+  }
+
+  // Check platform restrictions with proper type safety
+  private isPlatformRestricted(platformName: string, request: ExchangeRateRequest): boolean {
+    // Type-safe access to restrictions
+    const platformKey = platformName as keyof typeof PLATFORM_CONFIG.restrictions;
+    const restrictions = PLATFORM_CONFIG.restrictions[platformKey];
+    
+    if (!restrictions) return false;
+
+    const recipientCurrency = this.getCurrencyCode(request.recipientCountry);
+    
+    // Type-safe property access
+    const isCountryRestricted = 'disabledCountries' in restrictions ? 
+      restrictions.disabledCountries.includes(request.recipientCountry) : false;
+    
+    const isCurrencyRestricted = 'disabledCurrencies' in restrictions ? 
+      restrictions.disabledCurrencies.includes(recipientCurrency) : false;
+    
+    if (isCountryRestricted || isCurrencyRestricted) {
+      logger.debug(`Platform ${platformName} restricted for corridor ${request.senderCountry}-${request.recipientCountry}`);
+      return true;
+    }
+    
+    return false;
+  }
+
+  // Helper method to get platform name safely
+  private getPlatformName(integration: BaseIntegration): string {
+    // Extract platform name from constructor name as fallback
+    return integration.constructor.name.replace("Integration", "");
+  }
+
+  // Currency conversion helper method
+  private getCurrencyCode(country: string): string {
+    const currencyMap: { [key: string]: string } = {
+      US: "USD", USA: "USD",
+      NG: "NGN", NGA: "NGN",
+      GB: "GBP", UK: "GBP",
+      CA: "CAD", MX: "MXN",
+      PH: "PHP", IN: "INR",
+      KE: "KES", GH: "GHS",
+      ZA: "ZAR", EU: "EUR",
+      DE: "EUR", FR: "EUR",
+      IT: "EUR", ES: "EUR",
+      AU: "AUD", NZ: "NZD",
+      JP: "JPY", CN: "CNY",
+      BR: "BRL", AR: "ARS",
+      CL: "CLP", CO: "COP",
+      PE: "PEN", TH: "THB",
+      VN: "VND", ID: "IDR",
+      MY: "MYR", SG: "SGD",
+      KR: "KRW", AE: "AED",
+      SA: "SAR", EG: "EGP",
+      MA: "MAD", TN: "TND",
+      DZ: "DZD", UY: "UYU",
+    };
+
+    return currencyMap[country.toUpperCase()] || "USD";
   }
 
   // Update platform rankings based on performance
@@ -134,12 +224,18 @@ export class IntegrationManager {
     }
   }
 
-  // Get available platforms for a specific corridor
+  // Get available platforms for a specific corridor (only returns available (enabled + not restricted) platforms)
   getAvailablePlatforms(senderCountry: string, recipientCountry: string): string[] {
-    // This could be enhanced to check platform availability based on corridor
-    return this.integrations.map((integration) =>
-      integration.constructor.name.replace("Integration", ""),
-    );
+    const testRequest: ExchangeRateRequest = {
+      senderCountry,
+      recipientCountry,
+      amount: 100, // Default amount for checking availability
+      fetchHistoricalData: false
+    };
+
+    return this.integrations
+      .filter(integration => !this.isPlatformRestricted(this.getPlatformName(integration), testRequest))
+      .map(integration => this.getPlatformName(integration));
   }
 
   // Health check for all integrations
@@ -147,7 +243,7 @@ export class IntegrationManager {
     const healthStatus: { [platform: string]: boolean } = {};
 
     const healthChecks = await Promise.allSettled(
-      this.integrations.map(async (integration) => {
+      this.integrations.map(async (integration: BaseIntegration) => {
         try {
           // Simple health check - attempt to get a rate for a common corridor
           const testRequest: ExchangeRateRequest = {
@@ -157,15 +253,25 @@ export class IntegrationManager {
             fetchHistoricalData: false,
           };
 
+          const platformName = this.getPlatformName(integration);
+
+          // Skip if platform is restricted for this test corridor
+          if (this.isPlatformRestricted(platformName, testRequest)) {
+            return {
+              platform: platformName,
+              healthy: false,
+              reason: "restricted"
+            };
+          }
+
           const result = await integration.getExchangeRate(testRequest);
-          const platformName = integration.constructor.name.replace("Integration", "");
 
           return {
             platform: platformName,
             healthy: result !== null && result.success,
           };
         } catch (error) {
-          const platformName = integration.constructor.name.replace("Integration", "");
+          const platformName = this.getPlatformName(integration);
           return {
             platform: platformName,
             healthy: false,

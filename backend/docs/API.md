@@ -1,8 +1,8 @@
-# RemiTips API Documentation
+# Remitips API Documentation
 
 ## Base URL
 \`\`\`
-https://api.remitips.com/api/v1
+https://localhost:9101/api/v1
 \`\`\`
 
 ## Authentication
@@ -23,7 +23,7 @@ All API responses follow this structure:
     "requestId": "uuid",
     "timestamp": "2024-01-01T00:00:00.000Z",
     "version": "1.0.0",
-    "response_time": "250ms"
+    "responseTime": "250ms"
   }
 }
 \`\`\`
@@ -54,14 +54,14 @@ GET /exchange-rates/compare
 **Parameters:**
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `sender_country` | string | Yes | 2-3 letter country code (e.g., "US", "GB") |
-| `recipient_country` | string | Yes | 2-3 letter country code (e.g., "NG", "MX") |
+| `senderCountry` | string | Yes | 2-3 letter country code (e.g., "US", "GB") |
+| `recipientCountry` | string | Yes | 2-3 letter country code (e.g., "NG", "MX") |
 | `amount` | number | Yes | Amount to send (1-1,000,000) |
-| `fetch_historical_data` | boolean | No | Include historical analysis (default: false) |
+| `fetchHistoricalData` | boolean | No | Include historical analysis (default: false) |
 
 **Example Request:**
 \`\`\`bash
-curl "https://api.remitips.com/api/v1/exchange-rates/compare?sender_country=US&recipient_country=NG&amount=100&fetch_historical_data=true"
+curl "https://localhost:9101/api/v1/exchange-rates/compare?senderCountry=US&recipientCountry=NG&amount=100&fetchHistoricalData=true"
 \`\`\`
 
 **Example Response:**
@@ -69,11 +69,11 @@ curl "https://api.remitips.com/api/v1/exchange-rates/compare?sender_country=US&r
 {
   "success": true,
   "data": {
-    "sender_country": "US",
+    "senderCountry": "US",
     "sendingAmount": 100,
     "sendingCurrencyCode": "USD",
-    "recipient_country": "NG",
-    "recipient_currencyCode": "NGN",
+    "recipientCountry": "NG",
+    "recipientCurrencyCode": "NGN",
     "officialExchangeRate": {
       "baseCurrency": "USD",
       "targetCurrency": "NGN",
@@ -89,7 +89,7 @@ curl "https://api.remitips.com/api/v1/exchange-rates/compare?sender_country=US&r
         "exchangeRate": 1575,
         "fees": 5,
         "totalCost": 105,
-        "response_time": 250,
+        "responseTime": 250,
         "success": true
       },
       {
@@ -99,7 +99,7 @@ curl "https://api.remitips.com/api/v1/exchange-rates/compare?sender_country=US&r
         "exchangeRate": 1568,
         "fees": 3,
         "totalCost": 103,
-        "response_time": 180,
+        "responseTime": 180,
         "success": true
       }
     ],
@@ -110,20 +110,20 @@ curl "https://api.remitips.com/api/v1/exchange-rates/compare?sender_country=US&r
       "exchangeRate": 1575,
       "fees": 5,
       "totalCost": 105,
-      "response_time": 250,
+      "responseTime": 250,
       "success": true
     },
     "metrics": {
       "averageReceiveAmount": 157150,
       "averageExchangeRate": 1571.5,
       "averageFees": 4,
-      "best_receive_amount": 157500,
+      "bestReceiveAmount": 157500,
       "worstReceiveAmount": 156800,
       "spreadPercentage": 0.44,
-      "official_rateComparison": -0.57,
-      "platform_count": 2
+      "officialRateComparison": -0.57,
+      "platformCount": 2
     },
-    "response_time": 450,
+    "responseTime": 450,
     "timestamp": "2024-01-01T00:00:00.000Z",
     "historicalData": {
       "periods": {
@@ -178,16 +178,16 @@ GET /exchange-rates/platforms
 **Parameters:**
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `sender_country` | string | Yes | 2-3 letter country code |
-| `recipient_country` | string | Yes | 2-3 letter country code |
+| `senderCountry` | string | Yes | 2-3 letter country code |
+| `recipientCountry` | string | Yes | 2-3 letter country code |
 
 **Example Response:**
 \`\`\`json
 {
   "success": true,
   "data": {
-    "sender_country": "US",
-    "recipient_country": "NG",
+    "senderCountry": "US",
+    "recipientCountry": "NG",
     "availablePlatforms": [
       "Wise", "Remitly", "MoneyGram", "WorldRemit", "XE", "Ria"
     ],
@@ -208,8 +208,8 @@ GET /analytics/platforms
 **Parameters:**
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `sender_country` | string | Yes | 2-3 letter country code |
-| `recipient_country` | string | Yes | 2-3 letter country code |
+| `senderCountry` | string | Yes | 2-3 letter country code |
+| `recipientCountry` | string | Yes | 2-3 letter country code |
 | `days` | number | No | Analysis period in days (1-365, default: 30) |
 
 **Example Response:**
@@ -228,7 +228,7 @@ GET /analytics/platforms
         "averageReceiveAmount": 157250,
         "averageExchangeRate": 1572.5,
         "averageFees": 5.2,
-        "average_response_time": 245,
+        "averageResponseTime": 245,
         "reliabilityScore": 87.5,
         "trendDirection": "improving",
         "lastSeen": "2024-01-01T00:00:00.000Z"
@@ -263,8 +263,8 @@ GET /analytics/corridors
     "period": "30 days",
     "corridors": [
       {
-        "sender_country": "US",
-        "recipient_country": "MX",
+        "senderCountry": "US",
+        "recipientCountry": "MX",
         "totalComparisons": 156,
         "averageAmount": 250.5,
         "popularityRank": 1,
@@ -278,8 +278,8 @@ GET /analytics/corridors
       "totalCorridors": 25,
       "totalComparisons": 1250,
       "mostPopular": {
-        "sender_country": "US",
-        "recipient_country": "MX",
+        "senderCountry": "US",
+        "recipientCountry": "MX",
         "totalComparisons": 156
       }
     }
@@ -297,8 +297,8 @@ GET /analytics/trends
 **Parameters:**
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `sender_country` | string | Yes | 2-3 letter country code |
-| `recipient_country` | string | Yes | 2-3 letter country code |
+| `senderCountry` | string | Yes | 2-3 letter country code |
+| `recipientCountry` | string | Yes | 2-3 letter country code |
 | `periods` | string | No | Comma-separated periods (e.g., "7d,14d,30d") |
 
 **Example Response:**
@@ -349,7 +349,7 @@ GET /analytics/daily-summary
     "date": "2024-01-01",
     "totalComparisons": 45,
     "uniqueCorridors": 12,
-    "platform_performance": {
+    "platformPerformance": {
       "Wise": 15,
       "Remitly": 8,
       "MoneyGram": 5
@@ -441,11 +441,11 @@ Supported country codes (ISO 3166-1):
 const axios = require('axios');
 
 const remitips = {
-  baseURL: 'https://api.remitips.com/api/v1',
+  baseURL: 'https://localhost:9101/api/v1',
   
-  async compareRates(sender_country, recipient_country, amount, fetch_historical_data = false) {
+  async compareRates(senderCountry, recipientCountry, amount, fetchHistoricalData = false) {
     const response = await axios.get(`${this.baseURL}/exchange-rates/compare`, {
-      params: { sender_country, recipient_country, amount, fetch_historical_data }
+      params: { senderCountry, recipientCountry, amount, fetchHistoricalData }
     });
     return response.data;
   }
@@ -460,33 +460,21 @@ console.log(rates.data.winner);
 \`\`\`python
 import requests
 
-class RemiTipsAPI:
+class RemitipsAPI:
     def __init__(self):
-        self.base_url = "https://api.remitips.com/api/v1"
+        self.base_url = "https://localhost:9101/api/v1"
     
-    def compare_rates(self, sender_country, recipient_country, amount, fetch_historical_data=False):
+    def compare_rates(self, senderCountry, recipientCountry, amount, fetchHistoricalData=False):
         params = {
-            'sender_country': sender_country,
-            'recipient_country': recipient_country,
+            'senderCountry': senderCountry,
+            'recipientCountry': recipientCountry,
             'amount': amount,
-            'fetch_historical_data': fetch_historical_data
+            'fetchHistoricalData': fetchHistoricalData
         }
         response = requests.get(f"{self.base_url}/exchange-rates/compare", params=params)
         return response.json()
 
 # Usage
-api = RemiTipsAPI()
+api = RemitipsAPI()
 rates = api.compare_rates('US', 'NG', 100, True)
-print(rates['data']['winner'])
-\`\`\`
-
-## Webhooks (Coming Soon)
-
-Future versions will support webhooks for real-time notifications:
-- Rate change alerts
-- Platform availability changes
-- Daily/weekly report delivery
-
----
-
-For more information, see the [main documentation](./README.md) or [integration guide](./INTEGRATION.md).
+('US', 'NG', 100, True)

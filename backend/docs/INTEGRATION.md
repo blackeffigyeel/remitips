@@ -1,6 +1,6 @@
 # Platform Integration Guide
 
-This guide explains how RemiTips integrates with various remittance platforms and how to add new platform integrations.
+This guide explains how Remitips integrates with various remittance platforms and how to add new platform integrations.
 
 ## Integration Architecture
 

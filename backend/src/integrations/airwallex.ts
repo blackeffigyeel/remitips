@@ -30,7 +30,12 @@ export class AirwallexIntegration extends BaseIntegration {
 
         // Calculate fees based on the difference between AWX rate and client rate
         const awxRate = result.awxRate;
-        const feeAmount = (awxRate - exchangeRate) * sellAmount;
+
+        // console.log(`Airwallex AWX Rate data:`, JSON.stringify(result), `AWX Rate: ${awxRate}, Client Rate: ${exchangeRate}, Sell Amount: ${sellAmount}, Receive Amount: ${receiveAmount}`);
+
+        const expectedReceive = sellAmount * awxRate;
+        
+        const feeAmount = (expectedReceive - receiveAmount) / awxRate;
 
         return {
           platform: this.platformName,

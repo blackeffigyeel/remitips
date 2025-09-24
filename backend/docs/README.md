@@ -1,6 +1,6 @@
-# RemiTips API
+# Remitips API
 
-RemiTips is a comprehensive remittance exchange rate comparison platform that helps users find the best rates across multiple money transfer services. The API provides real-time rate comparisons, historical data analysis, and platform performance metrics.
+Remitips is a comprehensive remittance exchange rate comparison platform that helps users find the best rates across multiple money transfer services. The API provides real-time rate comparisons, historical data analysis, and platform performance metrics.
 
 ## 🚀 Features
 
@@ -220,7 +220,7 @@ COPY package*.json ./
 RUN npm ci --only=production
 COPY . .
 RUN npm run build
-EXPOSE 3000
+EXPOSE 9101
 CMD ["npm", "start"]
 \`\`\`
 

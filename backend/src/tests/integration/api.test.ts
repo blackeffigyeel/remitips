@@ -9,7 +9,7 @@ describe("API Integration Tests", () => {
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("status", "OK");
       expect(response.body).toHaveProperty("timestamp");
-      expect(response.body).toHaveProperty("service", "RemiTip API");
+      expect(response.body).toHaveProperty("service", "Remitips API");
     });
   });
 
@@ -18,7 +18,7 @@ describe("API Integration Tests", () => {
       const response = await request(app).get("/api/v1");
 
       expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty("message", "RemiTip API v1");
+      expect(response.body).toHaveProperty("message", "Remitips API v1");
       expect(response.body).toHaveProperty("version", "1.0.0");
       expect(response.body).toHaveProperty("endpoints");
     });
@@ -52,7 +52,7 @@ describe("API Integration Tests", () => {
       });
 
       // Note: This might fail in test environment without proper API keys
-      // In a real test, you'd mock the external API calls
+      // In a real test, the external API calls would be mocked
       expect([200, 500]).toContain(response.status);
     });
   });

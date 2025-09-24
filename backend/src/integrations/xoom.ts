@@ -10,7 +10,7 @@ export class XoomIntegration extends BaseIntegration {
       const { result, responseTime } = await this.measureResponseTime(async () => {
         // Xoom API endpoint would go here
         // Since specific API details weren't provided, this is a placeholder implementation
-        // In production, you would implement the actual Xoom API integration
+        // In production, the actual Xoom API integration would be implemented
 
         const response = await this.client.get("/api/send-money/quote", {
           params: {

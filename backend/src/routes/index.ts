@@ -11,7 +11,7 @@ router.use("/analytics", analyticsRouter);
 // API info endpoint
 router.get("/", (req, res) => {
   res.json({
-    message: "RemiTip API v1",
+    message: "Remitips API v1",
     version: "1.0.0",
     endpoints: {
       "GET /exchange-rates/compare": "Compare exchange rates across platforms",

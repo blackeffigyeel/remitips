@@ -11,3 +11,6 @@ export { XoomIntegration } from "./xoom";
 // Export base classes and interfaces
 export { BaseIntegration } from "./base";
 export type { ExchangeRateRequest, ExchangeRateResult } from "./base";
+
+// Export config
+export { PLATFORM_CONFIG } from "./platforms.config";

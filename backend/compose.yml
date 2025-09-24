@@ -1,0 +1,36 @@
+# specify the version of docker-compose
+version: "3.8"
+
+# define the services/containers to be run
+services:
+  # define the api service/container
+  api:
+    # api service depends on the database being accessible first
+    # cloud-hosted Postgres handles DB, so no db container is needed
+    build: .
+    
+    # specify the ports to expose for the api service
+    # the first number is the port on the host machine
+    # the second number is the port inside the container
+    ports: 
+      - "9101:9101"
+
+    # specify environment variables for the api service
+    # these environment variables will be read from the .env file
+    env_file: 
+      - .env.production
+
+    # establish docker compose watch mode for the api service
+    develop:
+      # specify the files to watch for changes
+      watch:
+        # watch package.json and package-lock.json for changes
+        - path: ./package.json
+          action: rebuild
+        - path: ./package-lock.json
+          action: rebuild
+
+        # watch backend source files and sync changes with the container in real time
+        - path: ./src
+          target: /app
+          action: sync

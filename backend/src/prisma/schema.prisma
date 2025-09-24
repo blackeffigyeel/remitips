@@ -36,7 +36,8 @@ model ExchangeRateHistory {
   // Metadata
   createdAt         DateTime @map("created_at") @default(now())
   updatedAt         DateTime @map("updated_at") @default(now()) @updatedAt
-  expiresAt         DateTime @map("expires_at") // TTL field - records expire after 60 days
+  expiresAt         DateTime @map("expires_at") @default(dbgenerated("now() + interval '60 days'")) // TTL field - records expire after 60 days
+
   
   @@map("exchange_rate_history")
   @@index([senderCountry, recipientCountry, createdAt])
