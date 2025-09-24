@@ -46,7 +46,9 @@ COPY --from=builder /app/dist ./dist
 # Copy any other necessary files
 COPY --from=builder /app/package.json ./package.json
 
-# Switch to app user
+# Create logs directory with proper permissions BEFORE switching to app user
+USER root
+RUN mkdir -p /app/logs && chown -R app:app /app/logs
 USER app
 
 # Expose the port for the backend server
