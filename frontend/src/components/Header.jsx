@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { TrendingUp, ShieldCheck, Clock } from "lucide-react";
+import { TrendingUp, ShieldCheck, Clock, Github } from "lucide-react";
 
 export default function Header() {
   return (
@@ -8,6 +8,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-3">
+            <a href="/">
             <Image
               src="/remitips-black-on-white-logo.png"
               alt="Remitips"
@@ -15,6 +16,7 @@ export default function Header() {
               height={40}
               className="h-8 w-auto"
             />
+            </a>
           </div>
 
           {/* Features */}
@@ -31,6 +33,16 @@ export default function Header() {
               <Clock className="h-4 w-4 text-primary" />
               <span>Real-time</span>
             </div>
+            {/* GitHub link */}
+            <a
+              href="https://github.com/blackeffigyeel/remitips"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2 hover:text-primary transition-colors"
+            >
+              <Github className="h-4 w-4" />
+              <span>GitHub</span>
+            </a>
           </div>
         </div>
       </div>
