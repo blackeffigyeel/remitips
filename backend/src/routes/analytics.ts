@@ -7,7 +7,7 @@ import {
   getSchedulerStatus,
   triggerManualJob,
 } from "../controllers/analyticsController";
-import { validateAnalyticsRequest } from "../middlewares/validation";
+import { validateAnalyticsRequest } from "../middleware/validation";
 
 const router = Router();
 

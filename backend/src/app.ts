@@ -7,8 +7,8 @@ import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
 
 import logger from "./utils/logger";
-import { errorHandler } from "./middlewares/errorHandler";
-import { sqlInjectionProtection } from "./middlewares/security";
+import { errorHandler } from "./middleware/errorHandler";
+import { sqlInjectionProtection } from "./middleware/security";
 import apiRoutes from "./routes";
 import { SchedulerService } from "./services/schedulerService";
 

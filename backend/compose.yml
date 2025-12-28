@@ -19,18 +19,3 @@ services:
     # these environment variables will be read from the .env file
     env_file: 
       - .env.production
-
-    # establish docker compose watch mode for the api service
-    develop:
-      # specify the files to watch for changes
-      watch:
-        # watch package.json and package-lock.json for changes
-        - path: ./package.json
-          action: rebuild
-        - path: ./package-lock.json
-          action: rebuild
-
-        # watch backend source files and sync changes with the container in real time
-        - path: ./src
-          target: /app
-          action: sync
