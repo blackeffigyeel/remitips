@@ -2,7 +2,7 @@
 
 **Remitips** is a full-stack remittance comparison platform that helps users find the best exchange rates and lowest fees across multiple money transfer services. This repository contains both the **frontend** (Next.js) and **backend** (Node.js + Express + PostgreSQL) projects.
 
-## 🚀 Features
+## Features
 
 * Compare real-time exchange rates across 9+ major remittance platforms
 * View historical trends and platform performance metrics
@@ -10,7 +10,7 @@
 * Robust security and validation
 * Full Docker and Docker Compose setup for development and production
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 /frontend        # Next.js frontend application
@@ -18,7 +18,7 @@
 /backend/docs    # API docs, integration guides, and README
 ```
 
-## 🏗️ Tech Stack
+## Tech Stack
 
 * **Frontend**: Next.js, React, TypeScript
 * **Backend**: Node.js, Express, TypeScript, PostgreSQL, Prisma
@@ -27,7 +27,7 @@
 * **Testing**: Jest, Supertest
 * **Monitoring & Logging**: Winston
 
-## ⚡ Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -71,17 +71,17 @@ npm install
 npm run dev
 ```
 
-## 📚 Documentation
+## Documentation
 
 * Backend API docs: [`/backend/docs/README.md`](./backend/docs/README.md)
 * Frontend docs: [`/frontend/README.md`](./frontend/README.md)
 
-## 📦 Deployment
+## Deployment
 
 * Frontend can be deployed on **Vercel**
 * Backend can be deployed on **Render** or similar cloud providers
 
-## 🤝 Contributing
+## Contributing
 
 * Fork the repo
 * Create a feature branch

@@ -4,7 +4,7 @@ import {
   healthCheck,
   getAvailablePlatforms,
 } from "../controllers/exchangeRatesController";
-import { validateExchangeRateRequest, validatePlatformRequest } from "../middlewares/validation";
+import { validateExchangeRateRequest, validatePlatformRequest } from "../middleware/validation";
 
 const router = Router();
 

@@ -4,7 +4,7 @@
   "license": "ISC",
   "version": "1.0.0",
   "description": "The backend infrastructure codebase for Remitip, a remittance exchange rate comparison platform.",
-  "main": "src/app.js",
+  "main": "dist/app.js",
   "scripts": {
     "dev": "nodemon src/app.ts",
     "build": "tsc",

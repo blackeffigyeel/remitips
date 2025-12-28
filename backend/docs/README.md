@@ -31,7 +31,7 @@ src/
 ├── controllers/            # Request handlers
 ├── services/               # Business logic
 ├── integrations/           # Platform API integrations
-├── middlewares/            # Custom middleware
+├── middleware/            # Custom middleware
 ├── routes/                 # API route definitions
 ├── utils/                  # Utility functions
 ├── database/               # Database client and utilities
