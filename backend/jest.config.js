@@ -3,7 +3,7 @@ module.exports = {
   testEnvironment: "node",
 
   // Point to src
-  roots: ["<rootDir>/src"],
+  roots: ["<rootDir>/tests"],
 
   // Match test files
   testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
@@ -23,7 +23,7 @@ module.exports = {
   coverageReporters: ["text", "lcov", "html"],
 
   // Setup file
-  setupFilesAfterEnv: ["<rootDir>/src/tests/setup.ts"],
+  setupFilesAfterEnv: ["<rootDir>/tests/setup.ts"],
 
   testTimeout: 10000,
 };
